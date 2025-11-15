@@ -1,0 +1,60 @@
+version: "3.9"
+
+services:
+
+  dynamodb-local:
+    image: amazon/dynamodb-local:latest
+    container_name: dynamodb-local
+    ports:
+      - "8000:8000"
+    networks:
+      - samnet
+    
+    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+    # volumes:
+    #   - ./dynamodb-init:/docker-entrypoint-initdb.d
+
+  #     - samnet
+
+  dynamodb-init:
+    image: amazon/aws-cli:2.15.0
+    depends_on:
+      - dynamodb-local
+    networks:
+      - samnet
+    volumes:
+      - ./dynamodb-init:/scripts
+    entrypoint: ["sh", "/scripts/init.sh"]
+
+networks:
+  samnet:
+    driver: bridge
+
+
+# version: "3.9"
+
+# services:
+#   dynamodb-local:
+#     image: amazon/dynamodb-local:latest
+#     container_name: dynamodb-local
+#     ports:
+#       - "8000:8000"
+#     networks:
+#       - samnet
+#     environment:
+#       AWS_ACCESS_KEY_ID: test
+#       AWS_SECRET_ACCESS_KEY: test
+#       AWS_REGION: us-east-1
+#     volumes:
+#       - ./dynamodb-init:/docker-entrypoint-initdb.d
+#     entrypoint: >
+#       sh -c "
+#       java -jar DynamoDBLocal.jar -sharedDb -inMemory &
+#       sleep 5 &&
+#       /docker-entrypoint-initdb.d/init.sh &&
+#       tail -f /dev/null
+#       "
+
+# networks:
+#   samnet:
+#     driver: bridge

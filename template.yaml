@@ -1,0 +1,93 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: A simple mock SAM application for testing
+
+Globals:
+  Function:
+    Timeout: 10
+    Runtime: python3.10
+
+Resources:
+  HelloWorldFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.lambda_handler
+      Runtime: python3.10
+      CodeUri: src/hello_world/
+      Events:
+        HelloWorldApi:
+          Type: Api
+          Properties:
+            Path: /hello
+            Method: GET
+
+  MyQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: MyLearningQueue
+
+  SQSEventConsumer:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/sqs_event_consumer/
+      Handler: app.lambda_handler
+      Environment:
+        Variables:
+          TABLE_NAME: MyMessages
+          DYNAMODB_ENDPOINT: http://172.17.0.1:8000
+          AWS_REGION: us-east-1
+          AWS_SESSION_TOKEN: dummy
+          AWS_ACCESS_KEY_ID: dummy
+          AWS_SECRET_ACCESS_KEY: dummy
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: MyMessages
+      Events:
+        SQSTrigger:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt MyQueue.Arn
+            BatchSize: 1
+
+  StreamConsumerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: StreamConsumer
+      CodeUri: src/stream_consumer/
+      Handler: app.handler
+      Runtime: python3.10
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref MyMessagesTable
+      Events:
+        DynamoDBStreamEvent:
+          Type: DynamoDB
+          Properties:
+            Stream: !GetAtt MyMessagesTable.StreamArn
+            BatchSize: 5
+            StartingPosition: TRIM_HORIZON
+
+  MyMessagesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: MyMessages
+      AttributeDefinitions:
+        - AttributeName: MessageId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: MessageId
+          KeyType: HASH
+      BillingMode: PAY_PER_REQUEST
+      StreamSpecification:
+        StreamEnabled: true
+        StreamViewType: NEW_IMAGE
+
+Outputs:
+  TableName:
+    Value: !Ref MyMessagesTable
+  QueueUrl:
+    Value: !Ref MyQueue
+  LambdaName:
+    Value: !Ref SQSEventConsumer
+
+
