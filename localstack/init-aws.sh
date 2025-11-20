@@ -1,6 +1,5 @@
 #!/bin/sh
 # Wait for DynamoDB Local to start
-sleep 3
 
 echo "Creating DynamoDB table MyMessages..."
 
@@ -13,11 +12,11 @@ aws dynamodb create-table \
   --attribute-definitions AttributeName=MessageId,AttributeType=S \
   --key-schema AttributeName=MessageId,KeyType=HASH \
   --billing-mode PAY_PER_REQUEST \
-  --endpoint-url http://localstack:4566 \
+  --endpoint-url http://localhost:4566 \
   --region us-east-1
 
-aws dynamodb list-tables --endpoint-url http://localstack:4566 --region us-east-1
+aws dynamodb list-tables --endpoint-url http://localhost:4566 --region us-east-1
 
 echo "Table creation complete."
 
-aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name my-test-queue
+aws sqs create-queue --queue-name my-test-queue --endpoint-url http://localhost:4566 --region us-east-1

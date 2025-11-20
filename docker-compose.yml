@@ -1,34 +1,45 @@
 version: "3.9"
 
 services:
-
-  dynamodb-local:
-    image: amazon/dynamodb-local:latest
-    container_name: dynamodb-local
+  localstack:
+    image: localstack/localstack
     ports:
-      - "8000:8000"
-    networks:
-      - samnet
-    
-    command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
-    # volumes:
-    #   - ./dynamodb-init:/docker-entrypoint-initdb.d
-
-  #     - samnet
-
-  dynamodb-init:
-    image: amazon/aws-cli:2.15.0
-    depends_on:
-      - dynamodb-local
-    networks:
-      - samnet
+      - "127.0.0.1:4566:4566"            # LocalStack Gateway
+      - "127.0.0.1:4510-4559:4510-4559"
+    environment:
+      - LOCALSTACK_SERVICES=sqs,dynamodb,lambda
+      - DEBUG=1
     volumes:
-      - ./dynamodb-init:/scripts
-    entrypoint: ["sh", "/scripts/init.sh"]
+      - "./localstack:/var/lib/localstack"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+      - "./localstack/init-aws.sh:/etc/localstack/init/ready.d/init-aws.sh"
+      
+#   dynamodb-local:
+#     image: amazon/dynamodb-local:latest
+#     container_name: dynamodb-local
+#     ports:
+#       - "8000:8000"
+#     networks:
+#       - samnet
+#     command: "-jar DynamoDBLocal.jar -sharedDb -inMemory"
+#     # volumes:
+#     #   - ./dynamodb-init:/docker-entrypoint-initdb.d
 
-networks:
-  samnet:
-    driver: bridge
+#   #     - samnet
+
+#   dynamodb-init:
+#     image: amazon/aws-cli:2.15.0
+#     depends_on:
+#       - dynamodb-local
+#     networks:
+#       - samnet
+#     volumes:
+#       - ./dynamodb-init:/scripts
+#     entrypoint: ["sh", "/scripts/init.sh"]
+
+# networks:
+#   samnet:
+#     driver: bridge
 
 
 # version: "3.9"

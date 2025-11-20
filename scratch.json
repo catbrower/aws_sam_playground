@@ -1,0 +1,46 @@
+{
+    "createdTime": 1763352159893,
+    "algorithm": "BACKTEST",
+    "parameters": [
+        {
+            "fieldName": "stock",
+            "fieldValue": "SPY",
+            "fieldClass": "java.lang.String",
+            "value": {
+                "scanAvailable": true
+            }
+        },
+        {
+            "fieldName": "two",
+            "fieldValue": "1",
+            "fieldClass": "java.lang.Integer",
+            "value": {
+                "scanAvailable": true
+            }
+        },
+        {
+            "fieldName": "three",
+            "fieldValue": "0.0",
+            "fieldClass": "java.lang.Double",
+            "value": {
+                "scanAvailable": true
+            }
+        },
+        {
+            "fieldName": "four",
+            "fieldValue": "true",
+            "fieldClass": "java.lang.Boolean",
+            "value": {
+                "scanAvailable": true
+            }
+        },
+        {
+            "fieldName": "five",
+            "fieldValue": "0.0",
+            "fieldClass": "java.lang.Double",
+            "value": {
+                "scanAvailable": true
+            }
+        }
+    ]
+}
